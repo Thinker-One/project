@@ -2,8 +2,9 @@
 
 int main(int argc, char *argv[])
 {
-    QApplication a(argc, argv);
-    LoginWindow w;
-    w.show();
-    return a.exec();
+    QApplication app(argc, argv);
+    QScopedPointer<LoginWindow> lgw(new LoginWindow);
+    lgw->login(app);
+    qDebug() << app.styleSheet();
+    return app.exec();
 }

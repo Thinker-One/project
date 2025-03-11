@@ -1,30 +1,33 @@
 #ifndef LOGINWINDOW_H
 #define LOGINWINDOW_H
 
-#include <QMainWindow>
+#include <QWidget>
 #include <QPushButton>
 #include <QLabel>
-#include <QVBoxLayout>
-#include <QLineEdit>
 #include <QMessageBox>
-#include <QApplication>
 
+#include "common.h"
 #include "chatWindow.h"
 
-class LoginWindow : public QWidget {
+class LoginWindow : public QDialog {
     Q_OBJECT
 
 public:
     LoginWindow(QWidget *parent = nullptr);
     ~LoginWindow();
 
+public:
+    void login(QApplication &app);
+
 private slots:
     void onLoginClicked();
     void onRegisterClicked();
-    void setupUI();
+    void setupLoginUI();
     void connectSignals();
 
 private:
+    QScopedPointer<ChatWindow> chatWindow;
+
     QLabel *titleLb;
     QLabel *userNameLb;
     QLabel *passwdLb;

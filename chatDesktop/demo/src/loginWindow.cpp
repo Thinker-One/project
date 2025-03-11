@@ -1,14 +1,17 @@
 // mainwindow.cpp
 #include "../include/loginWindow.h"
 
-LoginWindow::LoginWindow(QWidget *parent) : QWidget(parent) {
-    setupUI();
+LoginWindow::LoginWindow(QWidget *parent) : chatWindow(new ChatWindow), QDialog(parent) {
+    setupLoginUI();
     connectSignals();
 }
 
 LoginWindow::~LoginWindow() {}
 
-void LoginWindow::setupUI() {
+void LoginWindow::setupLoginUI() {
+
+    setWindowTitle("LOGIN");
+    resize(600, 400);
 
     // 创建控件
     titleLb = new QLabel("用户登录", this);
@@ -43,9 +46,7 @@ void LoginWindow::setupUI() {
     mainLayout->addLayout(userLayout);
     mainLayout->addLayout(passLayout);
     mainLayout->addLayout(buttonLayout);
-
-    setWindowTitle("登录界面");
-    resize(600, 400);
+    
 }
 
 void LoginWindow::onLoginClicked() {
@@ -60,8 +61,7 @@ void LoginWindow::onLoginClicked() {
 
     if (username == "admin" && password == "123456") {
         QMessageBox::information(this, "成功", "登录成功！");
-        ChatWindow *chatWindow = new ChatWindow;
-        chatWindow->show();
+        this->accept();
     } else {
         QMessageBox::critical(this, "失败", "用户名或密码错误！");
     }
@@ -75,7 +75,19 @@ void LoginWindow::connectSignals() {
 
     connect(loginBt, &QPushButton::clicked, this, &LoginWindow::onLoginClicked);
     connect(exitBt, &QPushButton::clicked, qApp, &QApplication::quit);
-    connect(userNameEd, &QLineEdit::returnPressed, this, &LoginWindow::onLoginClicked);
-    connect(passwdEd, &QLineEdit::returnPressed, this, &LoginWindow::onLoginClicked);
+    // connect(userNameEd, &QLineEdit::returnPressed, this, &LoginWindow::onLoginClicked);
+    // connect(passwdEd, &QLineEdit::returnPressed, this, &LoginWindow::onLoginClicked);
+
+}
+
+void LoginWindow::login(QApplication &app) {
+
+    chatWindow->show();
+
+    // if (this->exec() == QDialog::Accepted) {
+    //     chatWindow->show();
+    // } else {
+    //     QTimer::singleShot(0, &app, &QApplication::quit);
+    // }
 
 }
