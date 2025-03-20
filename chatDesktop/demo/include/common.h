@@ -9,5 +9,6 @@
 #include <QPushButton>
 #include <QLineEdit>
 #include <QLabel>
+#include <QStackedWidget>
 
 #endif

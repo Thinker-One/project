@@ -7,7 +7,7 @@
 #include <QMessageBox>
 
 #include "common.h"
-#include "chatWindow.h"
+#include "homePage.h"
 
 class LoginWindow : public QDialog {
     Q_OBJECT
@@ -26,7 +26,7 @@ private slots:
     void connectSignals();
 
 private:
-    QScopedPointer<ChatWindow> chatWindow;
+    QScopedPointer<HomePage> chatWindow;
 
     QLabel *titleLb;
     QLabel *userNameLb;

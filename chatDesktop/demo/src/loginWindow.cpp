@@ -1,7 +1,7 @@
 // mainwindow.cpp
 #include "../include/loginWindow.h"
 
-LoginWindow::LoginWindow(QWidget *parent) : chatWindow(new ChatWindow), QDialog(parent) {
+LoginWindow::LoginWindow(QWidget *parent) : chatWindow(new HomePage), QDialog(parent) {
     setupLoginUI();
     connectSignals();
 }
