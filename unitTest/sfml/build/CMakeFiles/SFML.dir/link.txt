@@ -1,0 +1,1 @@
+/usr/bin/c++ CMakeFiles/SFML.dir/src/sfml.cpp.o -o SFML  -lsfml-graphics -lsfml-window -lsfml-system 

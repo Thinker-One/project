@@ -1,0 +1,11 @@
+cmake_minimum_required(VERSION 3.20)
+project(UNITEST)
+set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_BUILD_PARALLEL_LEVEL "$ENV{NPROC}")
+if(NOT CMAKE_BUILD_TYPE)
+    set(CMAKE_BUILD_TYPE Debug)
+endif()
+if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+    add_compile_options(-g -O0 -Wall -Wextra)  # 调试符号 + 禁用优化 + 严格警告
+endif()
+add_subdirectory(thread)
