@@ -1,15 +1,32 @@
 #include "../include/chatWindow.h"
 
-ChatWindow::ChatWindow(QWidget *parent) : QMainWindow(parent) {
-
-    setWindowTitle("主界面");
-    resize(800, 600);
+ChatWindow::ChatWindow(const QString &text, QWidget *parent) : QWidget(parent) {
+    initChatWindow(text);
+    connectSignals();
 }
 
-ChatWindow::~ChatWindow() {
+void ChatWindow::initChatWindow(const QString &text) {
 
+    chatLayout = new QVBoxLayout(this);
+    chatContent = new QTextEdit(this);
+    chatContent->setReadOnly(true);
+    chatContent->append(text);
+    chatLayout->addWidget(chatContent);
+
+    inputLayout = new QHBoxLayout();
+    inputBox = new QLineEdit(this);
+    sendButton = new QPushButton("发送", this);
+    inputLayout->addWidget(inputBox);
+    inputLayout->addWidget(sendButton);
+    chatLayout->addLayout(inputLayout);
 }
 
-void ChatWindow::setupUI() {
+void ChatWindow::connectSignals() {
 
+    connect(sendButton, &QPushButton::clicked, this, &ChatWindow::sendMessage);
+    connect(inputBox, &QLineEdit::returnPressed, this, &ChatWindow::sendMessage);
+}
+
+void ChatWindow::sendMessage() {
+    qDebug() << "发送消息";
 }

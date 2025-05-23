@@ -1,0 +1,20 @@
+<!DOCTYPE RCC>
+<RCC version="1.0">
+    <qresource>
+        <file>../icons/chat.svg</file>
+        <file>../icons/chatFiles.png</file>
+        <file>../icons/collect.png</file>
+        <file>../icons/contacts.png</file>
+        <file>../icons/friendsCircle.png</file>
+        <file>../icons/look.png</file>
+        <file>../icons/search.png</file>
+        <file>../icons/video.png</file>
+
+        <file>../icons/person_1.png</file>
+        <file>../icons/person_2.png</file>
+        <file>../icons/person_3.png</file>
+        <file>../icons/person_4.png</file>
+        <file>../icons/person_5.png</file>
+        <file>../icons/person_6.png</file>
+    </qresource>
+</RCC>

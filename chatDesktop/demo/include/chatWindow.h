@@ -1,17 +1,31 @@
 #ifndef CHATWINDOW_H
 #define CHATWINDOW_H
 
-#include <QMainWindow>
+#include <QTextEdit>
+#include <QHBoxLayout>
+#include "common.h"
 
-class ChatWindow : public QMainWindow {
-    Q_OBJECT
+class ChatWindow : public QWidget
+{
+public:
+    ChatWindow(const QString &text, QWidget *parent = nullptr);
 
 public:
-    ChatWindow(QWidget *parent = nullptr);
-    ~ChatWindow();
+    void initChatWindow(const QString &text);
 
 private:
-    void setupUI();
+    void connectSignals();
+
+private slots:
+    void sendMessage();
+    
+
+private:
+    QVBoxLayout *chatLayout;
+    QHBoxLayout *inputLayout;
+    QTextEdit *chatContent;
+    QLineEdit *inputBox;
+    QPushButton *sendButton;
 
 };
 

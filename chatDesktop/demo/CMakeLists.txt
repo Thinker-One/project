@@ -12,8 +12,9 @@ find_package(Qt5 REQUIRED COMPONENTS Widgets)
 
 aux_source_directory(src SRC)
 file(GLOB HEADERS include/*.h)
+file(GLOB RESOURCES qrc/navlist/*.qrc)
+qt_add_resources(QRC_SOURCES ${RESOURCES})
 
-add_executable(${PROJECT_NAME} ${SRC} ${HEADERS})
-message(${SRC} ${HEADERS})
+add_executable(${PROJECT_NAME} ${SRC} ${HEADERS} ${QRC_SOURCES})
 target_include_directories(${PROJECT_NAME} PRIVATE include)
 target_link_libraries(${PROJECT_NAME} PRIVATE Qt5::Widgets)
