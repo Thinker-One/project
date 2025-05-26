@@ -1,3 +1,0 @@
-/root/unitTest/sfml/build/CMakeFiles/SFML.dir
-/root/unitTest/sfml/build/CMakeFiles/edit_cache.dir
-/root/unitTest/sfml/build/CMakeFiles/rebuild_cache.dir
