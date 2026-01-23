@@ -5,11 +5,13 @@ project(UsbMonitor LANGUAGES CXX)
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-# 定义可执行程序
+# 指定源文件路径
 file(GLOB SRC_FILES 
     ${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/common/src/*.cpp
 )
+
+# 指定可执行程序
 add_executable(UsbMonitor ${SRC_FILES})
 
 # 设置编译参数
@@ -22,6 +24,12 @@ target_compile_options(UsbMonitor PRIVATE
     $<$<CONFIG:Release>: -O3 -march=native>
 )
 
+# 链接库
+target_link_libraries(UsbMonitor PRIVATE
+    pthread
+    udev
+)
+
 # 宏定义
 target_compile_definitions(UsbMonitor PRIVATE
     $<$<CONFIG:Release>:LOG_TO_FILE_ENABLED=1>
@@ -29,19 +37,13 @@ target_compile_definitions(UsbMonitor PRIVATE
     $<$<CONFIG:Debug>:STDOUT_ENABLED=1>
 )
 
-# 头文件路径
+# 指定头文件路径
 target_include_directories(UsbMonitor PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/common/include
     ${CMAKE_CURRENT_SOURCE_DIR}/include
 )
 target_include_directories(UsbMonitor SYSTEM PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/third_party/spdlog/include
-)
-
-# 链接库
-target_link_libraries(UsbMonitor PRIVATE
-    pthread
-    udev
 )
 
 # if (CMAKE_BUILD_TYPE STREQUAL "Debug")
