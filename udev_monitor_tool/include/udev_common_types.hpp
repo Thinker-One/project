@@ -14,22 +14,26 @@ namespace UsbCommonTyps {
 
     // common struct
     struct UsbDeviceInfo {
-        std::string syspath_;        // /sys/devices/...
-        std::string devnode_;        // /dev/bus/usb/001/002 (可能为空)
-        std::string action_;         // add/remove/change（监听时有）
+        std::string syspath;        // /sys/devices/...
+        std::string sysname;
+        std::string sysnum;
+        std::string subsystem;      // usb
+        std::string devpath;
+        std::string devnode;        // /dev/bus/usb/001/002 (可能为空)
+        std::string devtype;        // usb_device / usb_interface
+        std::string action;         // add/remove/change（监听时有）
+        std::string driver;
 
-        std::string subsystem_;      // usb
-        std::string devtype_;        // usb_device / usb_interface
+        std::string product;
+        std::string vendor_id;      // VID
+        std::string product_id;     // PID
+        std::string manufacturer;
+        std::string serial;
 
-        std::string vendor_id_;      // VID
-        std::string product_id_;     // PID
-        std::string manufacturer_;
-        std::string product_;
-        std::string serial_;
-
-        int busnum_ = -1;
-        int devnum_ = -1;
+        int busnum = -1;
+        int devnum = -1;
     };
+
     struct Callbacks {
         add_remove_udev_cb add_udev_cb;
         add_remove_udev_cb remove_udev_cb;

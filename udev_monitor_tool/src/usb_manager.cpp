@@ -71,35 +71,43 @@ bool UsbManager::enumerate_udevs() {
     return true;
 }
 
-void UsbManager::print_all_udevs_info() {
+void UsbManager::   print_all_udevs_info() {
     LOG_INFO("CUR UDEV COUNT:{}.", get_udev_size());
     for (auto &it : udevs_) {
         auto udev_info = it->get_all_udevs_info();
         LOG_INFO("\n\
                 SYSPATH={}\n\
-                DEVNODE={}\n\
-                ACTION={}\n\
+                SYSNAME={}\n\
+                SYSNUM={}\n\
                 SUBSYSTEM={}\n\
+                DEVPATH={}\n\
+                DEVNODE={}\n\
                 DEVTYPE={}\n\
+                ACTION={}\n\
+                DRIVER={}\n\
+                PRODUCT={}\n\
                 VENDOR_ID={}\n\
                 PRODUCT_ID={}\n\
                 MANUFACTURER={}\n\
-                PRODUCT={}\n\
-                SERIAL_={}\n\
+                SERIAL={}\n\
                 BUSNUM={}\n\
-                DEVNUM={}\n", \
-                udev_info->syspath_,\
-                udev_info->devnode_,\
-                udev_info->action_,\
-                udev_info->subsystem_,\
-                udev_info->devtype_,\
-                udev_info->vendor_id_,\
-                udev_info->product_id_,\
-                udev_info->manufacturer_,\
-                udev_info->product_,\
-                udev_info->serial_,\
-                udev_info->busnum_,\
-                udev_info->devnum_
+                DEVNUM={}\n",\
+                udev_info->syspath,\
+                udev_info->sysname,\
+                udev_info->sysnum,\
+                udev_info->subsystem,\
+                udev_info->devpath,\
+                udev_info->devnode,\
+                udev_info->devtype,\
+                udev_info->action,\
+                udev_info->driver,\
+                udev_info->product,\
+                udev_info->vendor_id,\
+                udev_info->product_id,\
+                udev_info->manufacturer,\
+                udev_info->serial,\
+                udev_info->busnum,\
+                udev_info->devnum
         );
     }
 }
@@ -108,29 +116,37 @@ void UsbManager::print_new_udev_info(const std::shared_ptr<UsbDevice> &udev) {
     auto udev_info = udev->get_all_udevs_info();
     LOG_INFO("\n\
                 SYSPATH={}\n\
-                DEVNODE={}\n\
-                ACTION={}\n\
+                SYSNAME={}\n\
+                SYSNUM={}\n\
                 SUBSYSTEM={}\n\
+                DEVPATH={}\n\
+                DEVNODE={}\n\
                 DEVTYPE={}\n\
+                ACTION={}\n\
+                DRIVER={}\n\
+                PRODUCT={}\n\
                 VENDOR_ID={}\n\
                 PRODUCT_ID={}\n\
                 MANUFACTURER={}\n\
-                PRODUCT={}\n\
-                SERIAL_={}\n\
+                SERIAL={}\n\
                 BUSNUM={}\n\
-                DEVNUM={}\n", \
-                udev_info->syspath_,\
-                udev_info->devnode_,\
-                udev_info->action_,\
-                udev_info->subsystem_,\
-                udev_info->devtype_,\
-                udev_info->vendor_id_,\
-                udev_info->product_id_,\
-                udev_info->manufacturer_,\
-                udev_info->product_,\
-                udev_info->serial_,\
-                udev_info->busnum_,\
-                udev_info->devnum_
+                DEVNUM={}\n",\
+                udev_info->syspath,\
+                udev_info->sysname,\
+                udev_info->sysnum,\
+                udev_info->subsystem,\
+                udev_info->devpath,\
+                udev_info->devnode,\
+                udev_info->devtype,\
+                udev_info->action,\
+                udev_info->driver,\
+                udev_info->product,\
+                udev_info->vendor_id,\
+                udev_info->product_id,\
+                udev_info->manufacturer,\
+                udev_info->serial,\
+                udev_info->busnum,\
+                udev_info->devnum
         );
 }
 

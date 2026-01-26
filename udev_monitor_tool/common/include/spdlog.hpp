@@ -6,8 +6,8 @@
 #include <spdlog/sinks/rotating_file_sink.h>
 #include "common.hpp"
 
-#define LOG_FILE_DIR "/var/log/usb_monitor"
-#define LOG_FILE_PATH LOG_FILE_DIR "/usb_monitor.log"
+#define LOG_FILE_DIR "/var/log/udev_monitor"
+#define LOG_FILE_PATH LOG_FILE_DIR "/udev_monitor.log"
 #define LOG_FILE_MAX_SIZE (5 * 1024 * 1024)
 #define LOG_FILE_MAX_COUNT  3
 
@@ -36,13 +36,11 @@ namespace logger {
                 if (errno == EEXIST) {
                     struct stat st;
                     if (stat(subdir.c_str(), &st) != 0 || !S_ISDIR(st.st_mode)) {
-                        // fprintf(stderr, "Path exists but is not a directory: %s\n", subdir.c_str());
-                        // LOG_ERROR("Path exists but is not a directory: {}", subdir.c_str());
+                        fprintf(stderr, "Path exists but is not a directory: %s\n", subdir.c_str());
                         return;
                     }
                 } else {
-                    // fprintf(stderr, "mkdir failed: %s, errno=%d (%s)\n", subdir.c_str(), errno, strerror(errno));
-                    // LOG_ERROR("mkdir failed: {}, errno={} ({})", subdir.c_str(), errno, strerror(errno));
+                    fprintf(stderr, "mkdir failed: %s, errno=%d (%s)\n", subdir.c_str(), errno, strerror(errno));
                     return;
                 }
             }
