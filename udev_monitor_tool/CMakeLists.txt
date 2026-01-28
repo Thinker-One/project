@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.14)
-project(UsbMonitor LANGUAGES CXX)
+project(UdevMonitor LANGUAGES CXX)
 
 # 设置 C++ 标准
 set(CMAKE_CXX_STANDARD 11)
@@ -12,10 +12,10 @@ file(GLOB SRC_FILES
 )
 
 # 指定可执行程序
-add_executable(UsbMonitor ${SRC_FILES})
+add_executable(UdevMonitor ${SRC_FILES})
 
 # 设置编译参数
-target_compile_options(UsbMonitor PRIVATE
+target_compile_options(UdevMonitor PRIVATE
     -Wall 
     -Wextra 
     -Wpedantic
@@ -25,24 +25,24 @@ target_compile_options(UsbMonitor PRIVATE
 )
 
 # 链接库
-target_link_libraries(UsbMonitor PRIVATE
+target_link_libraries(UdevMonitor PRIVATE
     pthread
     udev
 )
 
 # 宏定义
-target_compile_definitions(UsbMonitor PRIVATE
+target_compile_definitions(UdevMonitor PRIVATE
     $<$<CONFIG:Release>:LOG_TO_FILE_ENABLED=1>
     $<$<CONFIG:Debug>:SPDLOG_ACTIVE_LEVEL=SPDLOG_LEVEL_DEBUG>
     $<$<CONFIG:Debug>:STDOUT_ENABLED=1>
 )
 
 # 指定头文件路径
-target_include_directories(UsbMonitor PRIVATE
+target_include_directories(UdevMonitor PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/common/include
     ${CMAKE_CURRENT_SOURCE_DIR}/include
 )
-target_include_directories(UsbMonitor SYSTEM PRIVATE
+target_include_directories(UdevMonitor SYSTEM PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/third_party/spdlog/include
 )
 
