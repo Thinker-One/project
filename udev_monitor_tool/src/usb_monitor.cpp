@@ -1,6 +1,6 @@
 #include "usb_monitor.hpp"
 
-UsbMonitor::UsbMonitor() : running_(true) {
+UsbMonitor::UsbMonitor() : running_(false), timeout_ms_(2000) {
     
 }
 
@@ -13,6 +13,7 @@ int UsbMonitor::init() {
 }
 
 int UsbMonitor::start() {
+    running_ = true;
     monitor_thread_ptr_ = std::make_shared<std::thread>(&UsbMonitor::listen_usb_hotplug, this);
     return 0;
 }
@@ -81,8 +82,16 @@ void UsbMonitor::listen_usb_hotplug() {
     pfd.fd = fd;
     pfd.events = POLLIN;
 
-    while (true) {
-        if (poll(&pfd, 1, -1) <= 0) continue;
+    while (running_) {
+        int ret = poll(&pfd, 1, timeout_ms_);
+        if (ret <= 0) {
+            if (ret < 0 && errno != EINTR) {
+                LOG_ERROR("poll fatal error, ret={}", ret);
+                break;
+            }
+            continue;
+        }
+
         if (pfd.revents & POLLIN) {
             struct udev_device *dev = udev_monitor_receive_device(mon);
             if (!dev) continue;

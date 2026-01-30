@@ -28,6 +28,7 @@ private:
     std::shared_ptr<std::thread> monitor_thread_ptr_;
     std::atomic_bool running_;
     UsbCommonTyps::Callbacks callbacks_;
+    int timeout_ms_;
 };
 
 #endif
