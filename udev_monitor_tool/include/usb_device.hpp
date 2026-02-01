@@ -2,6 +2,7 @@
 #define USB_DEVICE_HPP
 #include "common.hpp"
 #include "udev_common_types.hpp"
+#include "usb_interface.hpp"
 
 class UsbDevice {
 
@@ -10,6 +11,13 @@ public:
     ~UsbDevice();
 
 public:
+    enum class UsbDeviceState {
+        INIT,
+        UNINIT
+    };
+
+public:
+    void set_usb_dev_state(UsbDeviceState state);
     void set_syspath(std::string syspath);
     void set_sysname(std::string sysname);
     void set_sysnum(std::string sysnum);
@@ -28,6 +36,7 @@ public:
     void set_devnum(int devnum);
 
 public:
+    UsbDeviceState get_usb_dev_state();
     std::string get_syspath();
     std::string get_sysname();
     std::string get_sysnum();
@@ -44,13 +53,18 @@ public:
     std::string get_serial();
     int get_busnum();
     int get_devnum();
-    std::shared_ptr<UsbCommonTyps::UsbDeviceInfo> get_all_udevs_info();
+    std::shared_ptr<UsbCommonTyps::UsbDeviceInfo> get_usb_device_info();
+    std::shared_ptr<UsbCommonTyps::UsbInterfaceInfo> get_usb_interface_info();
 
+public:
+    std::shared_ptr<UsbInterface> interface_ptr_;
+    
 private:
     int init();
     
 private:
-    std::shared_ptr<UsbCommonTyps::UsbDeviceInfo> udev_info_ptr_;
+    UsbDeviceState state_;
+    std::shared_ptr<UsbCommonTyps::UsbDeviceInfo> usb_dev_info_ptr_;
 };
 
 #endif

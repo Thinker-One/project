@@ -1,6 +1,6 @@
 #include "usb_device.hpp"
 
-UsbDevice::UsbDevice() {
+UsbDevice::UsbDevice() : state_(UsbDeviceState::UNINIT) {
     init();
 }
 
@@ -9,138 +9,150 @@ UsbDevice::~UsbDevice() {
 }
 
 int UsbDevice::init() {
-    udev_info_ptr_ = std::make_shared<UsbCommonTyps::UsbDeviceInfo>();
+    usb_dev_info_ptr_ = std::make_shared<UsbCommonTyps::UsbDeviceInfo>();
     return 0;
 }
 
+void UsbDevice::set_usb_dev_state(UsbDeviceState state) {
+    state_ = state;
+}
+
 void UsbDevice::set_syspath(std::string syspath) {
-    udev_info_ptr_->syspath = syspath;
+    if (usb_dev_info_ptr_) usb_dev_info_ptr_->base_info.syspath = syspath;
 }
 
 void UsbDevice::set_sysname(std::string sysname) {
-    udev_info_ptr_->sysname = sysname;
+    if (usb_dev_info_ptr_) usb_dev_info_ptr_->base_info.sysname = sysname;
 }
 
 void UsbDevice::set_sysnum(std::string sysnum) {
-    udev_info_ptr_->sysnum = sysnum;
+    if (usb_dev_info_ptr_) usb_dev_info_ptr_->sysnum = sysnum;
 }
 
 void UsbDevice::set_devpath(std::string devpath) {
-    udev_info_ptr_->devpath = devpath;
+    if (usb_dev_info_ptr_) usb_dev_info_ptr_->base_info.devpath = devpath;
 }
 
 void UsbDevice::set_devnode(std::string devnode) {
-    udev_info_ptr_->devnode = devnode;
+    if (usb_dev_info_ptr_) usb_dev_info_ptr_->devnode = devnode;
 }
 
 void UsbDevice::set_action(std::string action) {
-    udev_info_ptr_->action = action;
+    if (usb_dev_info_ptr_) usb_dev_info_ptr_->action = action;
 }
 
 void UsbDevice::set_subsystem(std::string subsystem) {
-    udev_info_ptr_->subsystem = subsystem;
+    if (usb_dev_info_ptr_) usb_dev_info_ptr_->base_info.subsystem = subsystem;
 }
 
 void UsbDevice::set_driver(std::string driver) {
-    udev_info_ptr_->driver = driver;
+    if (usb_dev_info_ptr_) usb_dev_info_ptr_->base_info.driver = driver;
 }
 
 void UsbDevice::set_devtype(std::string devtype) {
-    udev_info_ptr_->devtype = devtype;
+    if (usb_dev_info_ptr_) usb_dev_info_ptr_->base_info.devtype = devtype;
 }
 
 void UsbDevice::set_vendor_id(std::string vendor_id) {
-    udev_info_ptr_->vendor_id = vendor_id;
+    if (usb_dev_info_ptr_) usb_dev_info_ptr_->vendor_id = vendor_id;
 }
 
 void UsbDevice::set_product_id(std::string product_id) {
-    udev_info_ptr_->product_id = product_id;
+    if (usb_dev_info_ptr_) usb_dev_info_ptr_->product_id = product_id;
 }
 
 void UsbDevice::set_manufacturer(std::string manufacturer) {
-    udev_info_ptr_->manufacturer = manufacturer;
+    if (usb_dev_info_ptr_) usb_dev_info_ptr_->manufacturer = manufacturer;
 }
 
 void UsbDevice::set_product(std::string product) {
-    udev_info_ptr_->product = product;
+    if (usb_dev_info_ptr_) usb_dev_info_ptr_->product = product;
 }
 
 void UsbDevice::set_serial(std::string serial) {
-    udev_info_ptr_->serial = serial;
+    if (usb_dev_info_ptr_) usb_dev_info_ptr_->serial = serial;
 }
 
 void UsbDevice::set_busnum(int busnum) {
-    udev_info_ptr_->busnum = busnum;
+    if (usb_dev_info_ptr_) usb_dev_info_ptr_->busnum = busnum;
 }
 
 void UsbDevice::set_devnum(int devnum) {
-    udev_info_ptr_->devnum = devnum;
+    if (usb_dev_info_ptr_) usb_dev_info_ptr_->devnum = devnum;
+}
+
+UsbDevice::UsbDeviceState UsbDevice::get_usb_dev_state() {
+    return state_;
 }
 
 std::string UsbDevice::get_syspath() {
-    return udev_info_ptr_->syspath;
+    return usb_dev_info_ptr_ ? usb_dev_info_ptr_->base_info.syspath : "";
 }
 
 std::string UsbDevice::get_sysname() {
-    return udev_info_ptr_->sysname;
+    return usb_dev_info_ptr_ ? usb_dev_info_ptr_->base_info.sysname : "";
 }
 
 std::string UsbDevice::get_sysnum() {
-    return udev_info_ptr_->sysnum;
+    return usb_dev_info_ptr_ ? usb_dev_info_ptr_->sysnum : "";
 }
 
 std::string UsbDevice::get_devpath() {
-    return udev_info_ptr_->devpath;
+    return usb_dev_info_ptr_ ? usb_dev_info_ptr_->base_info.devpath : "";
 }
 
 std::string UsbDevice::get_devnode() {
-    return udev_info_ptr_->devnode;
+    return usb_dev_info_ptr_ ? usb_dev_info_ptr_->devnode : "";
 }
 
 std::string UsbDevice::get_action() {
-    return udev_info_ptr_->action;
+    return usb_dev_info_ptr_ ? usb_dev_info_ptr_->action : "";
 }
 
 std::string UsbDevice::get_subsystem() {
-    return udev_info_ptr_->subsystem;
+    return usb_dev_info_ptr_ ? usb_dev_info_ptr_->base_info.subsystem : "";
 }
 
 std::string UsbDevice::get_driver() {
-    return udev_info_ptr_->driver;
+    return usb_dev_info_ptr_ ? usb_dev_info_ptr_->base_info.driver : "";
 }
 
 std::string UsbDevice::get_devtype() {
-    return udev_info_ptr_->devtype;
+    return usb_dev_info_ptr_ ? usb_dev_info_ptr_->base_info.devtype : "";
 }
 
 std::string UsbDevice::get_vendor_id() {
-    return udev_info_ptr_->vendor_id;
+    return usb_dev_info_ptr_ ? usb_dev_info_ptr_->vendor_id : "";
 }
 
 std::string UsbDevice::get_product_id() {
-    return udev_info_ptr_->product_id;
+    return usb_dev_info_ptr_ ? usb_dev_info_ptr_->product_id : "";
 }
 
 std::string UsbDevice::get_manufacturer() {
-    return udev_info_ptr_->manufacturer;
+    return usb_dev_info_ptr_ ? usb_dev_info_ptr_->manufacturer : "";
 }
 
 std::string UsbDevice::get_product() {
-    return udev_info_ptr_->product;
+    return usb_dev_info_ptr_ ? usb_dev_info_ptr_->product : "";
 }
 
 std::string UsbDevice::get_serial() {
-    return udev_info_ptr_->serial;
+    return usb_dev_info_ptr_ ? usb_dev_info_ptr_->serial : "";
 }
 
 int UsbDevice::get_busnum() {
-    return udev_info_ptr_->busnum;
+    return usb_dev_info_ptr_ ? usb_dev_info_ptr_->busnum : -1;
 }
 
 int UsbDevice::get_devnum() {
-    return udev_info_ptr_->devnum;
+    return usb_dev_info_ptr_ ? usb_dev_info_ptr_->devnum : -1;
 }
 
-std::shared_ptr<UsbCommonTyps::UsbDeviceInfo> UsbDevice::get_all_udevs_info() {
-    return udev_info_ptr_;
+std::shared_ptr<UsbCommonTyps::UsbDeviceInfo> UsbDevice::get_usb_device_info() {
+    return usb_dev_info_ptr_;
+}
+
+std::shared_ptr<UsbCommonTyps::UsbInterfaceInfo> UsbDevice::get_usb_interface_info() {
+    return interface_ptr_ ? interface_ptr_->get_usb_interface_info() : nullptr;
 }

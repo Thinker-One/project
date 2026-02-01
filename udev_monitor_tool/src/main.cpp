@@ -1,12 +1,16 @@
-#include "usb_manager.hpp"
+#include "usb_device_manager.hpp"
 
 int main() {
-    UsbManager& manager = UsbManager::get_instance();
-    manager.monitor_start();
-    while (true) {
+    try {
+        UsbDeviceManager& manager = UsbDeviceManager::get_instance();
+        manager.monitor_start();
+        while (true) {
+            std::this_thread::sleep_for(std::chrono::seconds(3));
+        }
         std::this_thread::sleep_for(std::chrono::seconds(3));
+        manager.monitor_stop();
+    } catch (const std::exception& e) {
+        LOG_ERROR("main error={}", e.what());
     }
-    std::this_thread::sleep_for(std::chrono::seconds(3));
-    manager.monitor_stop();
     return 0;
 }
