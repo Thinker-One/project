@@ -4,6 +4,14 @@
 
 class UsbDeviceObserver {
 
+public:
+    UsbDeviceObserver();
+    ~UsbDeviceObserver();
+
+public:
+
+private:
+
 };
 
 #endif

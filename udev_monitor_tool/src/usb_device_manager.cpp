@@ -1,13 +1,16 @@
 #include "usb_device_manager.hpp"
 
 UsbCommonTyps::UsbDeviceMapPtr UsbDeviceManager::devs_ptr_ = std::make_shared<UsbCommonTyps::UsbDeviceMap>();
+UsbCommonTyps::DeviceNum UsbDeviceManager::num_of_various_dev_;
 
-UsbDeviceManager::UsbDeviceManager() {
-    init();
+UsbDeviceManager::UsbDeviceManager() : mon_ptr_(std::make_shared<UsbDeviceMonitor>())
+{
+    set_callback();
 }
 
-UsbDeviceManager::~UsbDeviceManager() {
-    monitor_stop();
+UsbDeviceManager::~UsbDeviceManager()
+{
+    stop();
 }
 
 UsbDeviceManager& UsbDeviceManager::get_instance()  {
@@ -15,11 +18,17 @@ UsbDeviceManager& UsbDeviceManager::get_instance()  {
     return usb_manager;
 }
 
-void UsbDeviceManager::init() {
+int UsbDeviceManager::start() {
     enumerate_usb_device();
-    mon_ptr_ = std::make_shared<UsbDeviceMonitor>();
-    set_callback();
     print_all_usb_device_info();
+    print_all_usb_interface_info();
+    monitor_start();
+    return 0;
+}
+
+int UsbDeviceManager::stop() {
+    monitor_stop();
+    return 0;
 }
 
 void UsbDeviceManager::set_callback () {
@@ -40,23 +49,39 @@ void UsbDeviceManager::set_callback () {
             print_all_usb_device_info();
         },
 
+        [this](const std::shared_ptr<UsbInterface> &udev) {
+            print_new_interface_info(udev);
+        },
+
         [this]() {
-            return get_usb_device_number();
+            print_all_usb_interface_info();
+        },
+
+        [this]() {
+            return get_usb_device_total_num();
+        },
+
+        [this]() {
+            return get_usb_interface_number();
         },
         
         [this]() {
-            return get_devs_ptr_();
+            return get_devs_ptr();
+        },
+
+        [this]() {
+            return get_num_of_various_dev();
         }
     };
-    if (mon_ptr_) mon_ptr_->set_callback(callbacks_);
+    mon_ptr_->set_callback(callbacks_);
 }
 
 int UsbDeviceManager::monitor_start() {
-    return mon_ptr_ ? mon_ptr_->start() : 0;
+    return mon_ptr_->start();
 }
 
 int UsbDeviceManager::monitor_stop() {
-    return mon_ptr_ ? mon_ptr_->stop() : 0;
+    return mon_ptr_->stop();
 }
 
 bool UsbDeviceManager::enumerate_usb_device() {
@@ -102,13 +127,9 @@ bool UsbDeviceManager::enumerate_usb_device() {
 
 void UsbDeviceManager::print_all_usb_device_info() {
 
-    LOG_INFO("CUR UDEV COUNT:{}.", get_usb_device_number());
+    LOG_WARN("USB设备数量:{}", get_usb_device_total_num());
     for (auto it = devs_ptr_->begin(); it != devs_ptr_->end(); it++) {
         auto usb_dev_info = it->second->get_usb_device_info();
-        if (!usb_dev_info) {
-            LOG_ERROR("usb_dev_info is nullptr!");
-            return;
-        }
         LOG_INFO("\n\
                 SYSPATH={}\n\
                 SYSNAME={}\n\
@@ -146,6 +167,50 @@ void UsbDeviceManager::print_all_usb_device_info() {
     }
 }
 
+void UsbDeviceManager::print_all_usb_interface_info() {
+    LOG_WARN("USB设备接口数量:{}", get_usb_interface_number());
+    for (auto it = devs_ptr_->begin(); it != devs_ptr_->end(); it++) {
+        auto usb_interfaces_info = it->second->get_usb_interfaces_info();
+        for (auto &info : usb_interfaces_info) {
+            LOG_INFO("\n\
+                    SYSPATH={}\n\
+                    SYSNAME={}\n\
+                    SUBSYSTEM={}\n\
+                    DEVPATH={}\n\
+                    DEVTYPE={}\n\
+                    DRIVER={}\n\
+                    AUTHORIZED={}\n\
+                    bAlternateSetting={}\n\
+                    bInterfaceClass={}\n\
+                    bInterfaceNumber={}\n\
+                    bInterfaceProtocol={}\n\
+                    bInterfaceSubClass={}\n\
+                    bNumEndpoints={}\n\
+                    modalias={}\n\
+                    supports_autosuspend={}\n\
+                    uevent={}\n",\
+                    info->base_info.syspath,\
+                    info->base_info.sysname,\
+                    info->base_info.subsystem,\
+                    info->base_info.devpath,\
+                    info->base_info.devtype,\
+                    info->base_info.driver,\
+                    info->authorized,\
+                    info->bAlternateSetting,\
+                    info->bInterfaceClass,\
+                    info->bInterfaceNumber,\
+                    info->bInterfaceProtocol,\
+                    info->bInterfaceSubClass,\
+                    info->bNumEndpoints,\
+                    info->modalias,\
+                    info->supports_autosuspend,\
+                    // info->uevent
+                    ""
+            );
+        }
+    }
+}
+
 void UsbDeviceManager::print_new_usb_device_info(const std::shared_ptr<UsbDevice> &usb_dev) {
 
     if (!usb_dev) {
@@ -154,11 +219,6 @@ void UsbDeviceManager::print_new_usb_device_info(const std::shared_ptr<UsbDevice
     }
 
     auto usb_dev_info = usb_dev->get_usb_device_info();
-    if (!usb_dev_info) {
-        LOG_ERROR("usb_dev_info is nullptr!");
-        return;
-    }
-
     LOG_INFO("\n\
                 SYSPATH={}\n\
                 SYSNAME={}\n\
@@ -195,46 +255,79 @@ void UsbDeviceManager::print_new_usb_device_info(const std::shared_ptr<UsbDevice
         );
 }
 
-void UsbDeviceManager::add_usb_device(std::shared_ptr<UsbDevice> usb_dev) {
-    
+void UsbDeviceManager::print_new_interface_info(const std::shared_ptr<UsbInterface> &usb_dev) {
+
     if (!usb_dev) {
         LOG_ERROR("usb_dev is nullptr!");
         return;
     }
 
-    if (!devs_ptr_) {
-        LOG_ERROR("devs_ptr_ is nullptr!");
-        return;
-    }
-    
+    auto info = usb_dev->get_usb_interface_info();
+    LOG_INFO("\n\
+                SYSPATH={}\n\
+                SYSNAME={}\n\
+                SUBSYSTEM={}\n\
+                DEVPATH={}\n\
+                DEVTYPE={}\n\
+                DRIVER={}\n\
+                AUTHORIZED={}\n\
+                bAlternateSetting={}\n\
+                bInterfaceClass={}\n\
+                bInterfaceNumber={}\n\
+                bInterfaceProtocol={}\n\
+                bInterfaceSubClass={}\n\
+                bNumEndpoints={}\n\
+                modalias={}\n\
+                supports_autosuspend={}\n\
+                uevent={}\n",\
+                info->base_info.syspath,\
+                info->base_info.sysname,\
+                info->base_info.subsystem,\
+                info->base_info.devpath,\
+                info->base_info.devtype,\
+                info->base_info.driver,\
+                info->authorized,\
+                info->bAlternateSetting,\
+                info->bInterfaceClass,\
+                info->bInterfaceNumber,\
+                info->bInterfaceProtocol,\
+                info->bInterfaceSubClass,\
+                info->bNumEndpoints,\
+                info->modalias,\
+                info->supports_autosuspend,\
+                // info->uevent
+                ""
+    );
+}
+
+void UsbDeviceManager::add_usb_device(std::shared_ptr<UsbDevice> usb_dev) {
     std::string syspath = usb_dev->get_syspath();
-    try {
-        if (devs_ptr_->count(syspath) && devs_ptr_->at(syspath)->get_usb_dev_state() == UsbDevice::UsbDeviceState::INIT) return;
-    } catch (const std::exception &e) {
-        LOG_ERROR("error={}", e.what());
-    }
-    devs_ptr_->emplace(syspath, std::move(usb_dev));
+    if (!devs_ptr_->count(syspath)) devs_ptr_->emplace(syspath, std::move(usb_dev));
 }
 
-void UsbDeviceManager::remove_usb_device(std::shared_ptr<UsbDevice> usb_dev_b) {
-
-    if (!usb_dev_b) {
-        LOG_ERROR("usb_dev_b is nullptr!");
-        return;
-    }
-
-    if (!devs_ptr_) {
-        LOG_ERROR("devs_ptr_ is nullptr!");
-        return;
-    }
-
-    devs_ptr_->erase(usb_dev_b->get_syspath());
+void UsbDeviceManager::remove_usb_device(std::shared_ptr<UsbDevice> usb_dev) {
+    devs_ptr_->erase(usb_dev->get_syspath());
 }
 
-int UsbDeviceManager::get_usb_device_number() {
+int UsbDeviceManager::get_usb_device_total_num() {
     return devs_ptr_->size();
 }
 
-UsbCommonTyps::UsbDeviceMapPtr UsbDeviceManager::get_devs_ptr_() {
+UsbCommonTyps::DeviceNum UsbDeviceManager::get_num_of_various_dev() {
+    return num_of_various_dev_;
+}
+
+int UsbDeviceManager::get_usb_interface_number() {
+
+    int count = 0;
+    for (auto it = devs_ptr_->begin(); it != devs_ptr_->end(); it++) {
+        if (!it->second) continue;
+        count += it->second->get_usb_interface_number();
+    }
+
+    return count;
+}
+
+UsbCommonTyps::UsbDeviceMapPtr UsbDeviceManager::get_devs_ptr() {
     return devs_ptr_;
 }

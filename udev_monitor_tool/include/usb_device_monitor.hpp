@@ -16,7 +16,6 @@ public:
     ~UsbDeviceMonitor();
 
 public:
-    int init();
     int start();
     int stop();
     static std::shared_ptr<UsbDevice> parse_usb_device(UsbCommonTyps::UsbDeviceMapPtr devs, struct udev_device *udev);

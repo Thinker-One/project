@@ -32,7 +32,6 @@ public:
     void set_modalias(std::string modalias);
     void set_supports_autosuspend(std::string supports_autosuspend);
     void set_uevent(std::string uevent);
-    void set_usb_interface_state(InterfaceState state);
 
 public:
     std::string get_syspath();
@@ -52,16 +51,9 @@ public:
     std::string get_supports_autosuspend();
     std::string get_uevent();
     std::shared_ptr<UsbCommonTyps::UsbInterfaceInfo> get_usb_interface_info();
-    InterfaceState get_usb_interface_state();
 
-
+   
 private:
-    int init();
-
-public:
-    
-private:
-    InterfaceState state_;
     std::shared_ptr<UsbCommonTyps::UsbInterfaceInfo> usb_interface_info_ptr_;
 };
 
