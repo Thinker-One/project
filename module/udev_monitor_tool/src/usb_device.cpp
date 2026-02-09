@@ -57,10 +57,12 @@ void UsbDevice::set_devname(UsbCommonTyps::InterfaceDescriptor &describe, std::s
         } else if (describe.interface_subclass == "06") {
             devname = "硬盘" + std::to_string(num->num_type_disk++ + 1);
         }
+    } else if (describe.interface_class == "09") {
+        devname = "HUB" + std::to_string(num->num_type_custom++ + 1);
     } else if (describe.interface_class == "0ff") {
         devname = "自定义设备" + std::to_string(num->num_type_custom++ + 1);
     } else {
-        LOG_ERROR("未知的USB设备类型!");
+        devname = "未知类型USB设备" + std::to_string(num->num_type_unknown++ + 1);
     }
 
     num->num_total++;

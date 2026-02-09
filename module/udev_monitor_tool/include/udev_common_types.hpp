@@ -73,6 +73,9 @@ namespace UsbCommonTyps {
 
         // 自定义类（0xFF）
         int num_type_custom = 0;
+
+        // 未知类型
+        int num_type_unknown = 0;
     };
     
     struct InterfaceDescriptor {

@@ -1,9 +1,9 @@
 #include "usb_device_manager.hpp"
 
 UsbCommonTyps::UsbDeviceMapPtr UsbDeviceManager::devs_ptr_ = std::make_shared<UsbCommonTyps::UsbDeviceMap>();
-UsbCommonTyps::DeviceNum UsbDeviceManager::num_of_various_dev_;
 
-UsbDeviceManager::UsbDeviceManager() : mon_ptr_(std::make_shared<UsbDeviceMonitor>())
+UsbDeviceManager::UsbDeviceManager() : mon_ptr_(std::make_shared<UsbDeviceMonitor>()), 
+                                       num_of_various_dev_ptr_(std::make_shared<UsbCommonTyps::DeviceNum>())
 {
     set_callback();
 }
@@ -326,7 +326,7 @@ int UsbDeviceManager::get_usb_device_total_num() {
 }
 
 std::shared_ptr<UsbCommonTyps::DeviceNum> UsbDeviceManager::get_num_of_various_dev() {
-    return std::make_shared<UsbCommonTyps::DeviceNum>(num_of_various_dev_);
+    return num_of_various_dev_ptr_;
 }
 
 int UsbDeviceManager::get_usb_interface_number() {

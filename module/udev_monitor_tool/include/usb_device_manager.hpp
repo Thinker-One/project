@@ -42,7 +42,7 @@ private:
     std::shared_ptr<UsbDeviceMonitor> mon_ptr_;
     std::vector<std::unique_ptr<UsbDeviceObserver>> observers_;
     static UsbCommonTyps::UsbDeviceMapPtr devs_ptr_;
-    static UsbCommonTyps::DeviceNum num_of_various_dev_;
+    std::shared_ptr<UsbCommonTyps::DeviceNum> num_of_various_dev_ptr_;
     std::vector<std::shared_ptr<UsbDevice>> devs_type_disk_;
     UsbCommonTyps::Callbacks callbacks_;
 };
