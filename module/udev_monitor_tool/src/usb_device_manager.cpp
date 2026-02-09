@@ -136,6 +136,7 @@ void UsbDeviceManager::print_all_usb_device_info() {
                 SYSNUM={}\n\
                 SUBSYSTEM={}\n\
                 DEVPATH={}\n\
+                DEVNAME={}\n\
                 DEVNODE={}\n\
                 DEVTYPE={}\n\
                 ACTION={}\n\
@@ -145,6 +146,8 @@ void UsbDeviceManager::print_all_usb_device_info() {
                 PRODUCT_ID={}\n\
                 MANUFACTURER={}\n\
                 SERIAL={}\n\
+                REMOVABLE={}\n\
+                MAXCHILD={}\n\
                 BUSNUM={}\n\
                 DEVNUM={}\n",\
                 usb_dev_info->base_info.syspath,\
@@ -152,6 +155,7 @@ void UsbDeviceManager::print_all_usb_device_info() {
                 usb_dev_info->sysnum,\
                 usb_dev_info->base_info.subsystem,\
                 usb_dev_info->base_info.devpath,\
+                usb_dev_info->base_info.devname,\
                 usb_dev_info->devnode,\
                 usb_dev_info->base_info.devtype,\
                 usb_dev_info->action,\
@@ -161,6 +165,8 @@ void UsbDeviceManager::print_all_usb_device_info() {
                 usb_dev_info->product_id,\
                 usb_dev_info->manufacturer,\
                 usb_dev_info->serial,\
+                usb_dev_info->removable,\
+                usb_dev_info->maxchild,\
                 usb_dev_info->busnum,\
                 usb_dev_info->devnum
         );
@@ -225,6 +231,7 @@ void UsbDeviceManager::print_new_usb_device_info(const std::shared_ptr<UsbDevice
                 SYSNUM={}\n\
                 SUBSYSTEM={}\n\
                 DEVPATH={}\n\
+                DEVNAME={}\n\
                 DEVNODE={}\n\
                 DEVTYPE={}\n\
                 ACTION={}\n\
@@ -234,6 +241,8 @@ void UsbDeviceManager::print_new_usb_device_info(const std::shared_ptr<UsbDevice
                 PRODUCT_ID={}\n\
                 MANUFACTURER={}\n\
                 SERIAL={}\n\
+                REMOVABLE={}\n\
+                MAXCHILD={}\n\
                 BUSNUM={}\n\
                 DEVNUM={}\n",\
                 usb_dev_info->base_info.syspath,\
@@ -241,6 +250,7 @@ void UsbDeviceManager::print_new_usb_device_info(const std::shared_ptr<UsbDevice
                 usb_dev_info->sysnum,\
                 usb_dev_info->base_info.subsystem,\
                 usb_dev_info->base_info.devpath,\
+                usb_dev_info->base_info.devname,\
                 usb_dev_info->devnode,\
                 usb_dev_info->base_info.devtype,\
                 usb_dev_info->action,\
@@ -250,6 +260,8 @@ void UsbDeviceManager::print_new_usb_device_info(const std::shared_ptr<UsbDevice
                 usb_dev_info->product_id,\
                 usb_dev_info->manufacturer,\
                 usb_dev_info->serial,\
+                usb_dev_info->removable,\
+                usb_dev_info->maxchild,\
                 usb_dev_info->busnum,\
                 usb_dev_info->devnum
         );
@@ -313,8 +325,8 @@ int UsbDeviceManager::get_usb_device_total_num() {
     return devs_ptr_->size();
 }
 
-UsbCommonTyps::DeviceNum UsbDeviceManager::get_num_of_various_dev() {
-    return num_of_various_dev_;
+std::shared_ptr<UsbCommonTyps::DeviceNum> UsbDeviceManager::get_num_of_various_dev() {
+    return std::make_shared<UsbCommonTyps::DeviceNum>(num_of_various_dev_);
 }
 
 int UsbDeviceManager::get_usb_interface_number() {

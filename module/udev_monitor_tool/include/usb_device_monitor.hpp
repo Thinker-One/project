@@ -27,7 +27,7 @@ private:
     UsbDevice usb_dev_;
     std::shared_ptr<std::thread> usb_dev_mon_thd_ptr_;
     std::atomic<bool> running_;
-    UsbCommonTyps::Callbacks callbacks_;
+    static UsbCommonTyps::Callbacks callbacks_;
     int timeout_ms_;
 };
 

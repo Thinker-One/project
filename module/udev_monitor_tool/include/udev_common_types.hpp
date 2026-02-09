@@ -28,6 +28,8 @@ namespace UsbCommonTyps {
         std::string    product_id;          // PID
         std::string    manufacturer;
         std::string    serial;
+        std::string    removable;
+        std::string    maxchild;
 
         int busnum;
         int devnum;
@@ -72,6 +74,12 @@ namespace UsbCommonTyps {
         // 自定义类（0xFF）
         int num_type_custom = 0;
     };
+    
+    struct InterfaceDescriptor {
+        std::string interface_class;
+        std::string interface_subclass;
+        std::string interface_protocol;
+    };
 
 
 
@@ -92,7 +100,7 @@ namespace UsbCommonTyps {
     using get_usb_dev_num_cb = std::function<int()>;
     using get_usb_interface_num_cb = std::function<int()>;
     using get_devices_ptr_cb = std::function<UsbDeviceMapPtr()>;
-    using get_num_of_various_device_cb = std::function<DeviceNum()>;
+    using get_num_of_various_device_cb = std::function<std::shared_ptr<DeviceNum>()>;
 
 
 

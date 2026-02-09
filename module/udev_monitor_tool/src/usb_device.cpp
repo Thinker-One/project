@@ -32,41 +32,38 @@ void UsbDevice::set_devpath(std::string devpath) {
     usb_dev_info_ptr_->base_info.devpath = devpath;
 }
 
-void UsbDevice::set_devname(std::string interface_class, std::string interface_subclass, UsbCommonTyps::DeviceNum &num) {
+void UsbDevice::set_devname(UsbCommonTyps::InterfaceDescriptor &describe, std::shared_ptr<UsbCommonTyps::DeviceNum> num) {
 
     std::string devname;
-    if (interface_class == "02") {
-        if (interface_subclass == "02") {
-            devname = "虚拟串口" + std::to_string(num.num_type_virtualcomport++ + 1);
-        } else if (interface_subclass == "06") {
-            devname = "网卡" + std::to_string(num.num_type_netcard++ + 1);
+    if (describe.interface_class == "02") {
+        if (describe.interface_subclass == "02") {
+            devname = "虚拟串口" + std::to_string(num->num_type_virtualcomport++ + 1);
+        } else if (describe.interface_subclass == "06") {
+            devname = "网卡" + std::to_string(num->num_type_netcard++ + 1);
         }
-    } else if (interface_class == "03") {
-        if (interface_subclass == "01") {
-            devname = "键盘" + std::to_string(num.num_type_keyboard++ + 1);
-        } else if (interface_subclass == "02") {
-            devname = "鼠标" + std::to_string(num.num_type_mouse++ + 1);
+    } else if (describe.interface_class == "03" && describe.interface_subclass == "01") {
+        if (describe.interface_protocol == "01") {
+            devname = "键盘" + std::to_string(num->num_type_keyboard++ + 1);
+        } else if (describe.interface_protocol == "02") {
+            devname = "鼠标" + std::to_string(num->num_type_mouse++ + 1);
         }
-    } else if (interface_class == "07") {
-        devname = "打印机" + std::to_string(num.num_type_printer++ + 1);
-    } else if (interface_class == "08") {
-        if (interface_subclass == "02") {
-            devname = "光驱" + std::to_string(num.num_type_optical++ + 1);
-        } else if (interface_subclass == "04") {
-            devname = "软驱" + std::to_string(num.num_type_floppy++ + 1);
+    } else if (describe.interface_class == "07") {
+        devname = "打印机" + std::to_string(num->num_type_printer++ + 1);
+    } else if (describe.interface_class == "08") {
+        if (describe.interface_subclass == "02") {
+            devname = "光驱" + std::to_string(num->num_type_optical++ + 1);
+        } else if (describe.interface_subclass == "04") {
+            devname = "软驱" + std::to_string(num->num_type_floppy++ + 1);
+        } else if (describe.interface_subclass == "06") {
+            devname = "硬盘" + std::to_string(num->num_type_disk++ + 1);
         }
-        if (interface_subclass == "06") {
-            devname = "硬盘" + std::to_string(num.num_type_disk++ + 1);
-        } else if (interface_subclass == "06") {
-
-        }
-    } else if (interface_class == "0ff") {
-        devname = "自定义设备" + std::to_string(num.num_type_custom++ + 1);
+    } else if (describe.interface_class == "0ff") {
+        devname = "自定义设备" + std::to_string(num->num_type_custom++ + 1);
     } else {
         LOG_ERROR("未知的USB设备类型!");
     }
 
-    num.num_total++;
+    num->num_total++;
     usb_dev_info_ptr_->base_info.devname = devname;
 }
 
@@ -116,6 +113,14 @@ void UsbDevice::set_busnum(int busnum) {
 
 void UsbDevice::set_devnum(int devnum) {
     usb_dev_info_ptr_->devnum = devnum;
+}
+
+void UsbDevice::set_removable(std::string removable) {
+    usb_dev_info_ptr_->removable = removable;
+}
+
+void UsbDevice::set_maxchild(std::string maxchild) {
+    usb_dev_info_ptr_->maxchild = maxchild;
 }
 
 void UsbDevice::set_latest_interface(std::shared_ptr<UsbInterface> &interface) {
@@ -188,6 +193,14 @@ int UsbDevice::get_busnum() {
 
 int UsbDevice::get_devnum() {
     return usb_dev_info_ptr_->devnum;
+}
+
+std::string UsbDevice::get_removable() {
+    return usb_dev_info_ptr_->removable;
+}
+
+std::string UsbDevice::get_maxchild() {
+    return usb_dev_info_ptr_->maxchild;
 }
 
 std::shared_ptr<UsbCommonTyps::UsbDeviceInfo> UsbDevice::get_usb_device_info() {

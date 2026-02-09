@@ -23,7 +23,7 @@ public:
     void set_sysnum(std::string sysnum);
     void set_subsystem(std::string subsystem);
     void set_devpath(std::string devpath);
-    void set_devname(std::string interface_class, std::string interface_subclass, UsbCommonTyps::DeviceNum &num);
+    void set_devname(UsbCommonTyps::InterfaceDescriptor &describe, std::shared_ptr<UsbCommonTyps::DeviceNum> num);
     void set_devnode(std::string devnode);
     void set_devtype(std::string devtype);
     void set_action(std::string action);
@@ -35,6 +35,8 @@ public:
     void set_serial(std::string serial);
     void set_busnum(int busnum);
     void set_devnum(int devnum);
+    void set_removable(std::string removable);
+    void set_maxchild(std::string maxchild);
     void set_latest_interface(std::shared_ptr<UsbInterface> &interface);
 
 public:
@@ -55,6 +57,8 @@ public:
     std::string get_serial();
     int get_busnum();
     int get_devnum();
+    std::string get_removable();
+    std::string get_maxchild();
     std::shared_ptr<UsbCommonTyps::UsbDeviceInfo> get_usb_device_info();
     std::vector<std::shared_ptr<UsbCommonTyps::UsbInterfaceInfo>> get_usb_interfaces_info();
     int get_usb_interface_number();

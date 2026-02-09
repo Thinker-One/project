@@ -29,7 +29,7 @@ private:
     void print_new_usb_device_info(const std::shared_ptr<UsbDevice> &usb_dev);
     void print_new_interface_info(const std::shared_ptr<UsbInterface> &usb_dev);
     int get_usb_device_total_num();
-    UsbCommonTyps::DeviceNum get_num_of_various_dev();
+    std::shared_ptr<UsbCommonTyps::DeviceNum> get_num_of_various_dev();
     int get_usb_interface_number();
     static UsbCommonTyps::UsbDeviceMapPtr get_devs_ptr();
 

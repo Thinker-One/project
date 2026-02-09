@@ -1,5 +1,7 @@
 #include "usb_device_monitor.hpp"
 
+UsbCommonTyps::Callbacks UsbDeviceMonitor::callbacks_;
+
 UsbDeviceMonitor::UsbDeviceMonitor() : running_(true), timeout_ms_(2000)
 {
     usb_dev_mon_thd_ptr_ = std::make_shared<std::thread>(&UsbDeviceMonitor::listen_usb_device_hotplug, this);
@@ -58,6 +60,9 @@ std::shared_ptr<UsbDevice> UsbDeviceMonitor::parse_usb_device(UsbCommonTyps::Usb
     tmp_device->set_manufacturer(get(udev_device_get_sysattr_value(dev, "manufacturer")));
     tmp_device->set_product(get(udev_device_get_sysattr_value(dev, "product")));
     tmp_device->set_serial(get(udev_device_get_sysattr_value(dev, "serial")));
+    tmp_device->set_vendor_id(get(udev_device_get_sysattr_value(dev, "idVendor")));
+    tmp_device->set_removable(get(udev_device_get_sysattr_value(dev, "removable")));
+    tmp_device->set_maxchild(get(udev_device_get_sysattr_value(dev, "maxchild")));
     const char *busnum = udev_device_get_sysattr_value(dev, "busnum");
     const char *devnum = udev_device_get_sysattr_value(dev, "devnum");
     try {
@@ -115,6 +120,12 @@ std::shared_ptr<UsbDevice> UsbDeviceMonitor::parse_usb_interface(UsbCommonTyps::
     interface_ptr->set_modalias(get(udev_device_get_sysattr_value(dev, "modalias")));
     interface_ptr->set_supports_autosuspend(get(udev_device_get_sysattr_value(dev, "supports_autosuspend")));
     interface_ptr->set_uevent(get(udev_device_get_sysattr_value(dev, "uevent")));
+    UsbCommonTyps::InterfaceDescriptor descriptor = {
+        interface_ptr->get_bInterfaceClass(),
+        interface_ptr->get_bInterfaceSubClass(),
+        interface_ptr->get_bInterfaceProtocol()
+    };
+    tmp_device->set_devname(descriptor, callbacks_.get_num_of_various_dev_cb());
     tmp_device->interfaces_.emplace(syspath, interface_ptr);
     tmp_device->set_latest_interface(interface_ptr);
     return tmp_device;
