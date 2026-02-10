@@ -22,6 +22,10 @@ public:
     #if 0
         必须使用独立模板参数 U (而非直接使用类的模板参数 T)。否则T&& product就不是万能引用, 因为当 ThdSafeQueue<T> 
         实例化后(如 ThdSafeQueue<std::string>), T&& 会固定为 std::string&&(右值引用), ​​无法绑定左值​​。
+        T&  -> 只能绑定左值, 不能绑定右值, 不支持移动，不支持隐式转换
+        const T& -> 既可以绑定左值, 也可以绑定右值, 不支持移动, 支持隐式转换
+        const T& + T&& 重载  -> 既可以绑定左值, 也可以绑定右值, 支持移动, 支持隐式转换, 较冗余
+        template<typename U> U&& (万能引用) -> 既可以绑定左值, 也可以绑定右值, 支持移动, 支持隐式转换
     #endif
     
     template <typename U>

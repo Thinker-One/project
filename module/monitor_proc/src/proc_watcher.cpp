@@ -143,6 +143,56 @@ bool ProcWatcher::set_proc_ev_listen(bool enable)  {
     struct nlmsghdr
 #endif
 
+void ProcWatcher::init_consumer() {
+
+    running_.store(true);
+
+    if (!new_proc_consumer_ptr_) {
+        new_proc_consumer_ptr_ = std::make_shared<std::thread>([this] {
+            handle_new_proc();
+        });
+    }
+
+    if (!exit_proc_consumer_ptr_) {
+        exit_proc_consumer_ptr_ = std::make_shared<std::thread>([this] {
+            handle_exit_proc();
+        });
+    }
+}
+
+void ProcWatcher::handle_new_proc() {
+    NewProc task;
+    while (running_.load()) {
+        std::unique_lock<std::mutex> lock(new_proc_queue_mtx_);
+        new_proc_queue_cv_.wait(lock, [this] {
+            return !running_.load() || new_proc_queue_.size() != 0;
+        });
+        task = std::move(new_proc_queue_.front());
+        new_proc_queue_.pop();
+        lock.unlock();
+        // LOG_WARN("pid=%d, ppid=%d", task.pid, task.ppid);
+        // LOG_INFO("new_proc_queue_size=%d, proc_record_size=%d, childs_size=%d", new_proc_queue_.size(), proc_record_.size(), childs_.size());
+        // onProcessStart(task.pid, task.ppid);
+    }
+    LOG_WARN("handle_new_proc thread exit");
+}
+
+void ProcWatcher::handle_exit_proc() {
+    int task;
+    while (running_.load()) {
+        std::unique_lock<std::mutex> lock(exit_proc_queue_mtx_);
+        exit_proc_queue_cv_.wait(lock, [this] {
+            return !running_.load() || exit_proc_queue_.size() != 0;
+        });
+        // LOG_WARN("exit_proc_queue_ size=%d", exit_proc_queue_.size());
+        task = std::move(exit_proc_queue_.front());
+        exit_proc_queue_.pop();
+        lock.unlock();
+        // onProcessExit(task);/
+    }
+    LOG_WARN("handle_exit_proc thread exit");
+}
+
 void ProcWatcher::proc_watcher() {
 
     struct pollfd pfd;
@@ -176,42 +226,35 @@ void ProcWatcher::proc_watcher() {
         if (pfd.revents & POLLIN) {
             ssize_t len = recvmsg(nl_sock_, &msg, 0);
             if (len < 0) {
-                if (errno == EINTR || errno == EAGAIN || errno == EWOULDBLOCK) {
-                    LOG_WARN("recvmsg, errno={}", errno);
+                if (errno == EINTR || errno == EAGAIN || errno == EWOULDBLOCK || errno == ENOBUFS) {
+                    LOG_WARN("recvmsg, error: {} (errno={})", strerror(errno), errno);
                     continue;
                 }
-                LOG_ERROR("recvmsg, errno={}", errno);
+                
+                LOG_ERROR("recvmsg, error: {} (errno={})", strerror(errno), errno);
                 break;
             }
 
             for (struct nlmsghdr* nlh = (struct nlmsghdr*)buffer.data(); NLMSG_OK(nlh, len); nlh = NLMSG_NEXT(nlh, len)) {
 
-                // ---- 基础 netlink 消息处理 ----
                 if (nlh->nlmsg_type == NLMSG_NOOP) {
-                    LOG_INFO("空包");
                     continue;
                 }
-                    
 
                 if (nlh->nlmsg_type == NLMSG_ERROR) {
-                    LOG_ERROR("netlink error message");
                     continue;
                 }
 
                 if (nlh->nlmsg_type == NLMSG_DONE) {
-                    // LOG_INFO("数据已结束");
-                    // continue;
+                    continue;
                 }
 
-                // ---- connector 消息校验 ----
                 if (nlh->nlmsg_len < NLMSG_LENGTH(sizeof(struct cn_msg))) {
-                    LOG_WARN("netlink 数据格式错误");
                     continue;
                 }
 
                 auto* cn = (struct cn_msg*)NLMSG_DATA(nlh);
                 if (cn->len < sizeof(struct proc_event)) {
-                    LOG_WARN("proc_event 数据格式错误");
                     continue;
                 }
 
@@ -219,14 +262,43 @@ void ProcWatcher::proc_watcher() {
                 handle_event(*ev);
             }
         }
+        auto now = std::chrono::steady_clock::now();
+        auto duration = std::chrono::duration_cast<std::chrono::seconds>(now - start_time_).count();
+        if (duration > 60) clean_expired_records(now);
     }
-
+    LOG_WARN("proc_watcher thread exit, running__=%d", running_.load());
 }
 
 void ProcWatcher::handle_event(const struct proc_event &ev) {
 
     switch (ev.what) {
         case proc_event::PROC_EVENT_FORK: {
+            if (childs_.count(ev.event_data.fork.parent_tgid) || childs_.count(ev.event_data.fork.child_tgid)) {
+                if (childs_.size() >= max_childs_size_) {
+                    LOG_WARN("childs_size=%d", childs_.size());
+                    break;
+                }
+                auto it1 = childs_.insert(ev.event_data.fork.parent_pid);
+                auto it2 = childs_.insert(ev.event_data.fork.child_pid);
+                // if (it1.second) LOG_INFO("[FORK] add: %d", ev.event_data.fork.parent_pid);
+                // if (it2.second) LOG_INFO("[FORK] add: %d", ev.event_data.fork.child_pid);
+                break;
+            }
+
+            if (!new_proc_queue_.try_push<NewProc>({ev.event_data.fork.child_pid, ev.event_data.fork.parent_pid})) {
+                LOG_WARN("new_proc_queue_ is full, drop, size=%d", max_queue_size_);
+                break;
+            }
+
+            if (proc_record_.size() < max_record_size_) {
+                proc_record_.insert({
+                    ev.event_data.fork.child_pid,
+                    {ev.event_data.fork.parent_pid, std::chrono::steady_clock::now()}
+                });
+            }
+            break;
+
+            #if 0
             LOG_INFO("\n\
                     [FORK]\n\
                     parent_pid={},\n\
@@ -239,10 +311,36 @@ void ProcWatcher::handle_event(const struct proc_event &ev) {
                     ev.event_data.fork.child_tgid
             );
             print_proc_info(ev.event_data.exec.process_tgid);
-            break;
+            #endif
         }
             
         case proc_event::PROC_EVENT_EXEC: {
+            if (childs_.count(ev.event_data.exec.process_tgid)) {
+                auto it = childs_.insert(ev.event_data.exec.process_pid);
+                if (it.second) LOG_INFO("[EXEC] add: %d", ev.event_data.exec.process_pid);
+                break;
+            }
+
+            std::lock_guard<std::mutex> lock(new_proc_queue_mtx_);
+            if (new_proc_queue_.size() >= max_queue_size_) {
+                LOG_WARN("new_proc_queue_ is full, drop, size=%d", max_queue_size_);
+                break;
+            }
+
+            if (proc_record_.count(ev.event_data.exec.process_pid)) {
+                try {
+                    new_proc_queue_.push({
+                        ev.event_data.exec.process_pid,
+                        proc_record_.at(ev.event_data.exec.process_pid).ppid
+                    });
+                    new_proc_queue_cv_.notify_one();
+                } catch (const std::exception &e) {
+                    LOG_ERROR("error=%s", e.what());
+                }
+            }
+            break;
+
+            #if 0
             LOG_WARN("\n\
                     [EXEC]\n\
                     process_pid={},\n\
@@ -251,10 +349,27 @@ void ProcWatcher::handle_event(const struct proc_event &ev) {
                     ev.event_data.exec.process_tgid
             );
             print_proc_info(ev.event_data.exec.process_tgid);
-            break;
+            #endif
         }
             
         case proc_event::PROC_EVENT_EXIT: {
+            if (childs_.count(ev.event_data.exit.process_pid)) {
+                childs_.erase(ev.event_data.exit.process_pid);
+                // LOG_INFO("[EXIT] remove: %d", ev.event_data.exit.process_pid);
+                break;
+            }
+
+            std::lock_guard<std::mutex> lock(exit_proc_queue_mtx_);
+            if (exit_proc_queue_.size() >= max_queue_size_) {
+                LOG_WARN("exit_proc_queue_ is full, drop, size=%d", max_queue_size_);
+                break;
+            }
+            exit_proc_queue_.push(ev.event_data.exit.process_pid);
+            exit_proc_queue_cv_.notify_one();
+            proc_record_.erase(ev.event_data.exit.process_pid);
+            break;
+
+            #if 0
             LOG_INFO("\n\
                     [EXIT]\n\
                     process_pid={},\n\
@@ -267,7 +382,7 @@ void ProcWatcher::handle_event(const struct proc_event &ev) {
                     ev.event_data.exit.exit_signal
             );
             print_proc_info(ev.event_data.exec.process_tgid);
-            break;
+            #endif
         }
 
         default: {
@@ -299,4 +414,22 @@ void ProcWatcher::print_proc_info(int tgid) {
         for (auto &ch : cmdline) { if (ch == '\0') ch = ' '; }
         LOG_INFO("[CMDLINE] {}", cmdline);
     }
+}
+
+void ProcWatcher::clean_expired_records(std::chrono::steady_clock::time_point now) {
+
+    auto it = proc_record_.begin();
+    while (it != proc_record_.end()) {
+        auto duration = std::chrono::duration_cast<std::chrono::seconds>(
+            now - it->second.start_time
+        ).count();
+
+        if (duration > 60) {
+            // PROBE_LOG_WARE("Cleaning expired PID record: %d", it->first);
+            it = proc_record_.erase(it);
+        } else {
+            ++it;
+        }
+    }
+    start_time_ = now;
 }
