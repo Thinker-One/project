@@ -1,3 +1,5 @@
+#include <spdlog.hpp>
+#include <cstring>
 #include "usb_device_manager.hpp"
 
 UsbCommonTyps::UsbDeviceMapPtr UsbDeviceManager::devs_ptr_ = std::make_shared<UsbCommonTyps::UsbDeviceMap>();

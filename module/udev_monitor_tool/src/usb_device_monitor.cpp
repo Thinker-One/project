@@ -1,3 +1,5 @@
+#include <spdlog.hpp>
+#include <poll.h>
 #include "usb_device_monitor.hpp"
 
 UsbCommonTyps::Callbacks UsbDeviceMonitor::callbacks_;

@@ -1,3 +1,6 @@
+#include <sys/inotify.h>
+#include <spdlog.hpp>
+#include <pwd.h>
 #include "file_watcher.hpp"
 
 FileWatcher::FileWatcher() :

@@ -1,7 +1,9 @@
 #ifndef UDEV_COMMON_TYPES_H
 #define UDEV_COMMON_TYPES_H
+
+#include <memory>
+#include <unordered_map>
 #include <libudev.h>
-#include "common.hpp"
 
 class UsbDevice;
 class UsbInterface;

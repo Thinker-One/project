@@ -1,14 +1,8 @@
 #ifndef COMMON_HPP
 #define COMMON_HPP
-#include <iostream>
 #include <vector>
-#include <queue>
 #include <memory>
-#include <chrono>
-#include <spdlog.hpp>
-#include <string.h>
-#include <functional>
-
+#include <string>
 
 namespace CommonTool {
     
@@ -16,7 +10,7 @@ namespace CommonTool {
         NOT_FOUND,
         REGULAR_FILE,
         DIRECTORY,
-        OTHER // 如管道、设备文件等
+        OTHER                   // 如管道、设备文件等
     };
 
     struct PathInfo {

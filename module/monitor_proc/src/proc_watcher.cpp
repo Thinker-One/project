@@ -1,3 +1,11 @@
+#include <unistd.h>
+#include <spdlog.hpp>
+#include <sys/socket.h>
+#include <linux/netlink.h>
+#include <linux/connector.h>
+#include <linux/cn_proc.h>
+#include <poll.h>
+#include <fstream>
 #include "proc_watcher.hpp"
 
 ProcWatcher::ProcWatcher() : running_(false), nl_sock_(-1), timeout_ms_(2000) {

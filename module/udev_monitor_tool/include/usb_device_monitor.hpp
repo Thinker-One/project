@@ -1,11 +1,8 @@
 #ifndef USB_DEVICE_MONITOR_HPP
 #define USB_DEVICE_MONITOR_HPP
+
 #include <thread>
-#include <mutex>
 #include <atomic>
-#include <libudev.h>
-#include <poll.h>
-#include "common.hpp"
 #include "usb_device.hpp"
 #include "udev_common_types.hpp"
 

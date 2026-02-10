@@ -1,3 +1,4 @@
+#include <string>
 #include "usb_device.hpp"
 
 UsbDevice::UsbDevice() : state_(UsbDeviceState::UNINIT),

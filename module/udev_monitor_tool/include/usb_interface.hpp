@@ -1,6 +1,8 @@
 #ifndef USB_INTERFACE_HPP
 #define USB_INTERFACE_HPP
-#include "common.hpp"
+
+#include <string>
+#include <memory>
 #include "udev_common_types.hpp"
 
 class UsbInterface {

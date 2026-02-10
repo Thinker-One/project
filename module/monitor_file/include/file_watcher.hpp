@@ -1,18 +1,11 @@
 #ifndef FILE_WATCHER_HPP
 #define FILE_WATCHER_HPP
-#include "common.hpp"
 
 #include <string>
 #include <thread>
 #include <atomic>
-#include <functional>
 #include <mutex>
-#include <chrono>
-#include <sys/inotify.h>
-#include <sys/select.h>
-#include <unistd.h>
-#include <errno.h>
-#include <pwd.h>
+#include <vector>
 #include <unordered_map>
 #include <unordered_set>
 

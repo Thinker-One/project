@@ -1,4 +1,6 @@
+#include <spdlog.hpp>
 #include "usb_device_manager.hpp"
+#include "thd_safe_queue.hpp"
 
 int main() {
     try {

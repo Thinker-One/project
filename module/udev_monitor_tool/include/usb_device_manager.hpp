@@ -1,6 +1,8 @@
 #ifndef USB_DEVICE_MANAGER_HPP
 #define USB_DEVICE_MANAGER_HPP
-#include "common.hpp"
+
+#include <memory>
+#include <vector>
 #include "usb_device_monitor.hpp"
 #include "usb_device_observer.hpp"
 #include "udev_common_types.hpp"
